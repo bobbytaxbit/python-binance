@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(
-    name='python-binance',
+    name='taxbit-python-binance',
     version='0.7.1',
     packages=['binance'],
     description='Binance REST API python implementation',
