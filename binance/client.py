@@ -4,13 +4,15 @@ import hashlib
 import hmac
 import requests
 import time
+import os
+import random
+
 from operator import itemgetter
 from .helpers import date_to_milliseconds, interval_to_milliseconds
 from .exceptions import BinanceAPIException, BinanceRequestException, BinanceWithdrawException
 
 
 class Client(object):
-
     API_URL = 'https://api.binance.com/api'
     WITHDRAW_API_URL = 'https://api.binance.com/wapi'
     WEBSITE_URL = 'https://www.binance.com'
@@ -72,6 +74,10 @@ class Client(object):
     AGG_TIME = 'T'
     AGG_BUYER_MAKES = 'm'
     AGG_BEST_MATCH = 'M'
+
+    PROXY_USER = os.environ.get("PROXY_USER")
+    PROXY_PASS = os.environ.get("PROXY_PASS")
+    PROXY_PORT = os.environ.get("PROXY_PORT")
 
     def __init__(self, api_key, api_secret, requests_params=None):
         """Binance API Client constructor
@@ -143,6 +149,10 @@ class Client(object):
         # set default requests timeout
         kwargs['timeout'] = 10
 
+        # set proxies
+        kwargs['proxies'] = (f"http://{self.PROXY_USER}-country-us-session-{random.random()}:"
+                             f"{self.PROXY_PASS}@zproxy.lum-superproxy.io:{self.PROXY_PORT}")
+
         # add our global requests params
         if self._requests_params:
             kwargs.update(self._requests_params)
@@ -155,7 +165,7 @@ class Client(object):
             if 'requests_params' in kwargs['data']:
                 # merge requests params into kwargs
                 kwargs.update(kwargs['data']['requests_params'])
-                del(kwargs['data']['requests_params'])
+                del (kwargs['data']['requests_params'])
 
         if signed:
             # generate signature
@@ -170,7 +180,7 @@ class Client(object):
         # if get request assign data array to params value for requests lib
         if data and (method == 'get' or force_params):
             kwargs['params'] = kwargs['data']
-            del(kwargs['data'])
+            del (kwargs['data'])
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
