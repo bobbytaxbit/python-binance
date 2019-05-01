@@ -150,8 +150,11 @@ class Client(object):
         kwargs['timeout'] = 10
 
         # set proxies
-        kwargs['proxies'] = (f"http://{self.PROXY_USER}-country-us-session-{random.random()}:"
-                             f"{self.PROXY_PASS}@zproxy.lum-superproxy.io:{self.PROXY_PORT}")
+        super_proxy_url = (f"http://{self.PROXY_USER}-country-us-session-{random.random()}:"
+                           f"{self.PROXY_PASS}@zproxy.lum-superproxy.io:{self.PROXY_PORT}")
+
+        kwargs['proxies'] = {'http': super_proxy_url,
+                             'https': super_proxy_url}
 
         # add our global requests params
         if self._requests_params:
