@@ -93,7 +93,7 @@ class Client(object):
 
         self.API_KEY = api_key
         self.API_SECRET = api_secret
-        self.session = self._init_session()
+        # self.session = self._init_session()
         self._requests_params = requests_params
 
         # init DNS and SSL cert
@@ -146,8 +146,12 @@ class Client(object):
 
     def _request(self, method, uri, signed, force_params=False, **kwargs):
 
+        kwargs['headers'] = {'Accept': 'application/json',
+                             'User-Agent': 'binance/python',
+                             'X-MBX-APIKEY': self.API_KEY}
+
         # set default requests timeout
-        kwargs['timeout'] = 10
+        kwargs['timeout'] = 30
 
         # set proxies
         super_proxy_url = (f"http://{self.PROXY_USER}-country-us-session-{random.random()}:"
@@ -185,7 +189,7 @@ class Client(object):
             kwargs['params'] = kwargs['data']
             del (kwargs['data'])
 
-        response = getattr(self.session, method)(uri, **kwargs)
+        response = getattr(requests, method)(uri, **kwargs)
         return self._handle_response(response)
 
     def _request_api(self, method, path, signed=False, version=PUBLIC_API_VERSION, **kwargs):
